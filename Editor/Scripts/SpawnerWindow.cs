@@ -5,11 +5,12 @@ using UnityEngine.UIElements;
 
 namespace CodeLibrary24.PointToPointSpawner.Editor
 {
-    public class SpawnerWindow : EditorWindow
+    public partial class SpawnerWindow : EditorWindow
     {
         [SerializeField]
         private VisualTreeAsset m_VisualTreeAsset = default;
-        private SpawnData _spawnData;
+        private VisualElement _container;
+       [SerializeField] private SpawnData _spawnData;
         private Transform _selectedTransform;
 
         [MenuItem("CodeLibrary24/PointToPointSpawner/SpawnerWindow")]
@@ -27,86 +28,96 @@ namespace CodeLibrary24.PointToPointSpawner.Editor
         private void OnDisable()
         {
             SceneView.duringSceneGui -= OnSceneGUI;
+            DestroySpawnData();
+        }
+
+        private void DestroySpawnData()
+        {
+            if(_spawnData != null)
+            {
+                DestroyImmediate(_spawnData);
+            }
         }
 
         private void LoadSpawnData()
         {
+            _spawnData = ScriptableObject.CreateInstance<SpawnData>();
             if (_spawnData == null)
             {
-                _spawnData = Resources.Load<SpawnData>("SpawnData");
-                if (_spawnData == null)
-                {
-                    Debug.LogError("SpawnData is null. Create from the asset menu into the resources folder");
-                }
+                Debug.LogError("SpawnData is null. Create from the asset menu into the resources folder");
             }
         }
 
         public void CreateGUI()
         {
             VisualElement root = rootVisualElement;
-            VisualElement container = m_VisualTreeAsset.Instantiate();
-            root.Add(container);
+            _container = m_VisualTreeAsset.CloneTree();
+            root.Add(_container);
             LoadSpawnData();
             BindSpawnData();
         }
 
         private void BindSpawnData()
         {
-            string bindingRootObjectName = "_spawnData";
+
             // bind to prefab
-            var prefabField = rootVisualElement.Q<ObjectField>("Prefab");
+            var prefabField = _container.Q<ObjectField>("Prefab");
             prefabField.objectType = typeof(GameObject);
-            prefabField.bindingPath = bindingRootObjectName + ".prefab";
+            prefabField.value = _spawnData.prefab;
+            prefabField.bindingPath = nameof(_spawnData.prefab);
 
             // bind to radius
-            var radiusField = rootVisualElement.Q<FloatField>("Radius");
-            radiusField.bindingPath = bindingRootObjectName + ".radius";
+            var radiusField = _container.Q<FloatField>("Radius");
+            radiusField.value = _spawnData.radius;
+            radiusField.bindingPath = nameof(_spawnData.radius);
 
             // bind to spawnCount
-            var spawnCountField = rootVisualElement.Q<IntegerField>("SpawnCount");
-            spawnCountField.bindingPath = bindingRootObjectName + ".spawnCount";
+            var spawnCountField = _container.Q<IntegerField>("SpawnCount");
+            spawnCountField.value = _spawnData.spawnCount;
+            spawnCountField.bindingPath = nameof(_spawnData.spawnCount);
 
             // bind to discDirection
-            var discDirectionField = rootVisualElement.Q<EnumField>("DiscDirection");
-            discDirectionField.bindingPath = bindingRootObjectName + ".discDirection";
+            var discDirectionField = _container.Q<EnumField>("DirectionNormal");
+            discDirectionField.Init(_spawnData.dirNormal);
+            discDirectionField.bindingPath = nameof(_spawnData.dirNormal);
+
+            rootVisualElement.Bind(new SerializedObject(_spawnData));
+
+            // bind to spawn button
+            var spawnButton = _container.Q<Button>("SpawnButton");
+            spawnButton.clicked += DrawCubes;
+
         }
 
         private void OnSceneGUI(SceneView view)
         {
+            _selectedTransform = Selection.activeTransform;
+
             if (_selectedTransform == null)
             {
-                _selectedTransform = Selection.activeTransform;
-                return;
-            }
-            if (_spawnData == null)
-            {
-                LoadSpawnData();
                 return;
             }
 
-            Handles.DrawWireDisc(_selectedTransform.position, GetDiscDirection(), _spawnData.radius);
+            Handles.DrawWireDisc(_selectedTransform.position, GetDiscNormal(), _spawnData.radius);
         }
-
-
-        private Vector3 GetDiscDirection()
+        private Vector3 GetDiscNormal()
         {
             Vector3 direction = Vector3.zero;
-            switch (_spawnData.discDirection)
+            switch (_spawnData.dirNormal)
             {
-                case DiscDirection.Up:
+                case DirectionNormal.Up:
                     direction = Vector3.up;
                     break;
-                case DiscDirection.Right:
+                case DirectionNormal.Right:
                     direction = Vector3.right;
                     break;
-                case DiscDirection.Forward:
+                case DirectionNormal.Forward:
                     direction = Vector3.forward;
                     break;
             }
             return direction;
         }
 
-        [MenuItem("CircusCharlie/Draw Circumference")] // TODO: Where does this belong?
 
         private void DrawCubes()
         {
@@ -129,13 +140,13 @@ namespace CodeLibrary24.PointToPointSpawner.Editor
             for (int i = 0; i < points; i++)
             {
                 float angle = slice * i;
-                result[i] = CalculatePosition(_spawnData.discDirection, center, radius, angle);
+                result[i] = CalculatePosition(_spawnData.dirNormal, center, radius, angle);
             }
 
             return result;
         }
 
-        public static Vector3 CalculatePosition(DiscDirection discDirection, Vector3 center, float radius, float angle)
+        public static Vector3 CalculatePosition(DirectionNormal discDirection, Vector3 center, float radius, float angle)
         {
             float x = center.x;
             float y = center.y;
@@ -143,28 +154,21 @@ namespace CodeLibrary24.PointToPointSpawner.Editor
 
             switch (discDirection)
             {
-                case DiscDirection.Up:
+                case DirectionNormal.Up:
                     x += radius * Mathf.Cos(angle);
                     z += radius * Mathf.Sin(angle);
                     break;
-                case DiscDirection.Right:
+                case DirectionNormal.Right:
                     y += radius * Mathf.Cos(angle);
                     z += radius * Mathf.Sin(angle);
                     break;
-                case DiscDirection.Forward:
+                case DirectionNormal.Forward:
                     x += radius * Mathf.Cos(angle);
                     y += radius * Mathf.Sin(angle);
                     break;
             }
 
             return new Vector3(x, y, z);
-        }
-
-        public enum DiscDirection
-        {
-            Up,
-            Right,
-            Forward
         }
     }
 

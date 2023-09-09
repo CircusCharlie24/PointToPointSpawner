@@ -9,6 +9,6 @@ namespace CodeLibrary24.PointToPointSpawner.Editor
         public GameObject prefab;
         public  float radius = 1f;
         public int spawnCount = 10;
-        public DiscDirection discDirection;
+        public DirectionNormal dirNormal;
     }
 }

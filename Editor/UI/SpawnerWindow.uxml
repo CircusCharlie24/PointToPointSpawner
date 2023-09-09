@@ -4,7 +4,7 @@
         <uie:ObjectField label="Prefab" name="Prefab" allow-scene-objects="true" type="UnityEngine.GameObject, UnityEngine.CoreModule" />
         <ui:IntegerField label="Spawn Count" value="0" name="SpawnCount" />
         <ui:FloatField label="Radius" value="0" name="Radius" />
-        <ui:EnumField label="Enum" type="CodeLibrary24.PointToPointSpawner.Editor.SpawnerWindow+DiscDirection, com.codelibrary24.pointtopointspawner.editor" name="DiscDirection" />
+        <ui:EnumField label="Enum" type="CodeLibrary24.PointToPointSpawner.Editor.DirectionNormal, com.codelibrary24.pointtopointspawner.editor" name="DirectionNormal" />
         <ui:Button text="Spawn" display-tooltip-when-elided="true" name="SpawnButton" style="background-color: rgb(61, 154, 47); margin-top: 10px; padding-left: 20px; padding-right: 20px; width: 200px; align-self: center;" />
     </ui:VisualElement>
 </ui:UXML>
