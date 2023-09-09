@@ -1,4 +1,10 @@
-<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
     <Style src="project://database/Assets/PointToPointSpawner/Editor/UI/SpawnerWindow.uss?fileID=7433441132597879392&amp;guid=c4a9765134b9e5a4d9301252974e38a5&amp;type=3#SpawnerWindow" />
-    <ui:VisualElement name="Container" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0);" />
+    <ui:VisualElement name="Container" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); margin-left: 2px; margin-right: 2px; margin-top: 2px; margin-bottom: 2px; padding-left: 6px; padding-right: 6px; padding-top: 6px; padding-bottom: 6px;">
+        <uie:ObjectField label="Prefab" name="Prefab" allow-scene-objects="true" type="UnityEngine.GameObject, UnityEngine.CoreModule" />
+        <ui:IntegerField label="Spawn Count" value="0" name="SpawnCount" />
+        <ui:FloatField label="Radius" value="0" name="Radius" />
+        <ui:EnumField label="Enum" type="CodeLibrary24.PointToPointSpawner.Editor.SpawnerWindow+DiscDirection, com.codelibrary24.pointtopointspawner.editor" name="DiscDirection" />
+        <ui:Button text="Spawn" display-tooltip-when-elided="true" name="SpawnButton" style="background-color: rgb(61, 154, 47); margin-top: 10px; padding-left: 20px; padding-right: 20px; width: 200px; align-self: center;" />
+    </ui:VisualElement>
 </ui:UXML>

@@ -1,6 +1,6 @@
 {
     "name": "com.codelibrary24.pointtopointspawner.editor",
-    "rootNamespace": "CodeLibrary24.PointToPointSpawner",
+    "rootNamespace": "CodeLibrary24.PointToPointSpawner.Editor",
     "references": [],
     "includePlatforms": [
         "Editor"
