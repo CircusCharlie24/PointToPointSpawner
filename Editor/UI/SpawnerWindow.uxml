@@ -1,10 +1,22 @@
 <ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="True">
     <Style src="project://database/Assets/PointToPointSpawner/Editor/UI/SpawnerWindow.uss?fileID=7433441132597879392&amp;guid=c4a9765134b9e5a4d9301252974e38a5&amp;type=3#SpawnerWindow" />
     <ui:VisualElement name="Container" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); margin-left: 2px; margin-right: 2px; margin-top: 2px; margin-bottom: 2px; padding-left: 6px; padding-right: 6px; padding-top: 6px; padding-bottom: 6px;">
-        <uie:ObjectField label="Prefab" name="Prefab" allow-scene-objects="true" type="UnityEngine.GameObject, UnityEngine.CoreModule" />
-        <ui:IntegerField label="Spawn Count" value="0" name="SpawnCount" />
-        <ui:FloatField label="Radius" value="0" name="Radius" />
-        <ui:EnumField label="Enum" type="CodeLibrary24.PointToPointSpawner.Editor.DirectionNormal, com.codelibrary24.pointtopointspawner.editor" name="DirectionNormal" />
-        <ui:Button text="Spawn" display-tooltip-when-elided="true" name="SpawnButton" style="background-color: rgb(61, 154, 47); margin-top: 10px; padding-left: 20px; padding-right: 20px; width: 200px; align-self: center;" />
+        <ui:VisualElement name="SelectedObjectsContainer" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); -unity-text-outline-width: 0; -unity-text-outline-color: rgb(61, 154, 47); margin-left: 10px; margin-right: 10px; margin-top: 10px; margin-bottom: 10px;">
+            <ui:Label tabindex="-1" text="Select a Game Object to begin" display-tooltip-when-elided="true" name="ActiveSelectionMissingLabel" style="-unity-font-style: italic; color: rgb(255, 0, 0); font-size: 11px; -unity-text-align: upper-center;" />
+            <ui:ScrollView style="flex-grow: 1; padding-left: 2px; padding-right: 2px; padding-top: 2px; padding-bottom: 2px; -unity-text-outline-width: 0; -unity-text-outline-color: rgb(61, 154, 47); border-left-color: rgb(33, 87, 25); border-right-color: rgb(33, 87, 25); border-top-color: rgb(33, 87, 25); border-bottom-color: rgb(33, 87, 25); border-left-width: 1px; border-right-width: 1px; border-top-width: 1px; border-bottom-width: 1px; border-top-left-radius: 4px; border-bottom-left-radius: 4px; border-top-right-radius: 4px; border-bottom-right-radius: 4px;">
+                <ui:Label tabindex="-1" text="GameObject(s) selected:-" display-tooltip-when-elided="true" name="SelectedItemsTtitleLabel" style="color: rgb(61, 154, 47); -unity-text-align: middle-center;" />
+                <ui:Label tabindex="-1" text="1. None" display-tooltip-when-elided="true" name="TargetSelectedLabel" style="color: rgb(61, 154, 47); -unity-text-align: middle-center; -unity-font-style: bold;" />
+            </ui:ScrollView>
+        </ui:VisualElement>
+        <ui:VisualElement name="DataContainer" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0); margin-left: 10px; margin-right: 10px; margin-top: 10px; margin-bottom: 10px;">
+            <uie:ObjectField label="Item to spawn" name="ItemToSpawn" allow-scene-objects="false" type="UnityEngine.GameObject, UnityEngine.CoreModule" />
+            <ui:Label tabindex="-1" text="Item to spawn cannot be null" display-tooltip-when-elided="true" name="SpawnItemMissingLabel" style="-unity-font-style: italic; color: rgb(255, 0, 0); font-size: 11px; -unity-text-align: upper-right;" />
+            <ui:VisualElement name="SpawningContainer" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0);">
+                <ui:IntegerField label="Spawn Count" value="0" name="SpawnCount" />
+                <ui:FloatField label="Radius" value="0" name="Radius" />
+                <ui:EnumField label="Enum" type="CodeLibrary24.PointToPointSpawner.Editor.DirectionNormal, com.codelibrary24.pointtopointspawner.editor" name="DirectionNormal" />
+                <ui:Button text="Spawn" display-tooltip-when-elided="true" name="SpawnButton" style="background-color: rgb(61, 154, 47); margin-top: 10px; padding-left: 20px; padding-right: 20px; width: 200px; align-self: center;" />
+            </ui:VisualElement>
+        </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>

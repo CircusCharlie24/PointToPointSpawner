@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
@@ -9,9 +10,17 @@ namespace CodeLibrary24.PointToPointSpawner.Editor
     {
         [SerializeField]
         private VisualTreeAsset m_VisualTreeAsset = default;
+        [SerializeField] private SpawnData _spawnData;
+        private const string SpawnDataPath = "SpawnData";
         private VisualElement _container;
-       [SerializeField] private SpawnData _spawnData;
         private Transform _selectedTransform;
+        private VisualElement _dataContainer;
+        private VisualElement _spawningContainer;
+
+        private VisualElement _activeSelectionMissingLabel;
+        private VisualElement _spawnItemMissingLabel;
+
+        private List<Transform> _selectedTransforms;
 
         [MenuItem("CodeLibrary24/PointToPointSpawner/SpawnerWindow")]
         public static void ShowWindow()
@@ -28,20 +37,11 @@ namespace CodeLibrary24.PointToPointSpawner.Editor
         private void OnDisable()
         {
             SceneView.duringSceneGui -= OnSceneGUI;
-            DestroySpawnData();
-        }
-
-        private void DestroySpawnData()
-        {
-            if(_spawnData != null)
-            {
-                DestroyImmediate(_spawnData);
-            }
         }
 
         private void LoadSpawnData()
         {
-            _spawnData = ScriptableObject.CreateInstance<SpawnData>();
+            _spawnData = Resources.Load<SpawnData>(SpawnDataPath);
             if (_spawnData == null)
             {
                 Debug.LogError("SpawnData is null. Create from the asset menu into the resources folder");
@@ -55,16 +55,28 @@ namespace CodeLibrary24.PointToPointSpawner.Editor
             root.Add(_container);
             LoadSpawnData();
             BindSpawnData();
+
+            OpenSceneView();
+        }
+
+        private void OpenSceneView()
+        {
+            SceneView sceneView = SceneView.lastActiveSceneView;
+            if (sceneView == null)
+            {
+                sceneView = EditorWindow.GetWindow<SceneView>();
+            }
+            sceneView.Focus();
         }
 
         private void BindSpawnData()
         {
 
             // bind to prefab
-            var prefabField = _container.Q<ObjectField>("Prefab");
+            var prefabField = _container.Q<ObjectField>("ItemToSpawn");
             prefabField.objectType = typeof(GameObject);
-            prefabField.value = _spawnData.prefab;
-            prefabField.bindingPath = nameof(_spawnData.prefab);
+            prefabField.value = _spawnData.itemToSpawn;
+            prefabField.bindingPath = nameof(_spawnData.itemToSpawn);
 
             // bind to radius
             var radiusField = _container.Q<FloatField>("Radius");
@@ -81,6 +93,12 @@ namespace CodeLibrary24.PointToPointSpawner.Editor
             discDirectionField.Init(_spawnData.dirNormal);
             discDirectionField.bindingPath = nameof(_spawnData.dirNormal);
 
+            _dataContainer = _container.Q<VisualElement>("DataContainer");
+            _spawningContainer = _container.Q<VisualElement>("SpawningContainer");
+
+            _activeSelectionMissingLabel = _container.Q<VisualElement>("ActiveSelectionMissingLabel");
+            _spawnItemMissingLabel = _container.Q<VisualElement>("SpawnItemMissingLabel");
+
             rootVisualElement.Bind(new SerializedObject(_spawnData));
 
             // bind to spawn button
@@ -91,15 +109,44 @@ namespace CodeLibrary24.PointToPointSpawner.Editor
 
         private void OnSceneGUI(SceneView view)
         {
-            _selectedTransform = Selection.activeTransform;
+            _selectedTransform = Selection.activeTransform; // TODO: There can be multiple selections here
+            _selectedTransforms = new List<Transform>(Selection.transforms);
 
             if (_selectedTransform == null)
             {
+                _dataContainer.style.display = DisplayStyle.None;
+                _activeSelectionMissingLabel.style.display = DisplayStyle.Flex;
                 return;
+            }
+            else
+            {
+                _dataContainer.style.display = DisplayStyle.Flex;
+                _activeSelectionMissingLabel.style.display = DisplayStyle.None;
+            }
+
+            if (_spawnData.itemToSpawn == null)
+            {
+                _spawningContainer.style.display = DisplayStyle.None;
+                _spawnItemMissingLabel.style.display = DisplayStyle.Flex;
+                return;
+            }
+            else
+            {
+                _spawningContainer.style.display = DisplayStyle.Flex;
+                _spawnItemMissingLabel.style.display = DisplayStyle.None;
             }
 
             Handles.DrawWireDisc(_selectedTransform.position, GetDiscNormal(), _spawnData.radius);
         }
+
+        private void ShowSelectedTransformNames()
+        {
+            foreach (Transform transform in _selectedTransforms)
+            {
+
+            }
+        }
+
         private Vector3 GetDiscNormal()
         {
             Vector3 direction = Vector3.zero;
@@ -127,7 +174,7 @@ namespace CodeLibrary24.PointToPointSpawner.Editor
 
             foreach (Vector3 point in points)
             {
-                GameObject newPoint = GameObject.Instantiate(_spawnData.prefab, point, Quaternion.identity);
+                GameObject newPoint = GameObject.Instantiate(_spawnData.itemToSpawn, point, Quaternion.identity);
                 newPoint.transform.parent = _selectedTransform;
                 newPoint.transform.LookAt(_selectedTransform.position);
             }
