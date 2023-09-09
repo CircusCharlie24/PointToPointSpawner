@@ -1,0 +1,16 @@
+{
+    "name": "com.codelibrary24.pointtopointspawner.editor",
+    "rootNamespace": "CodeLibrary24.PointToPointSpawner",
+    "references": [],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
