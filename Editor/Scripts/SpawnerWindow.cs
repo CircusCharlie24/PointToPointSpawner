@@ -175,6 +175,7 @@ namespace CodeLibrary24.PointToPointSpawner.Editor
             foreach (Vector3 point in points)
             {
                 GameObject newPoint = GameObject.Instantiate(_spawnData.itemToSpawn, point, Quaternion.identity);
+                Undo.RegisterCreatedObjectUndo(newPoint, "Spawned Object");
                 newPoint.transform.parent = _selectedTransform;
                 newPoint.transform.LookAt(_selectedTransform.position);
             }
