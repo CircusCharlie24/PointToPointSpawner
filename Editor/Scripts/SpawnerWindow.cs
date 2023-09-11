@@ -10,6 +10,7 @@ namespace CodeLibrary24.PointToPointSpawner.Editor
     {
         [SerializeField]
         private VisualTreeAsset m_VisualTreeAsset = default;
+
         [SerializeField] private SpawnData _spawnData;
         private const string SpawnDataPath = "SpawnData";
         private VisualElement _container;
@@ -84,7 +85,6 @@ namespace CodeLibrary24.PointToPointSpawner.Editor
 
         private void BindSpawnData()
         {
-
             // bind to prefab
             var prefabField = _container.Q<ObjectField>("ItemToSpawn");
             prefabField.objectType = typeof(GameObject);
@@ -119,7 +119,6 @@ namespace CodeLibrary24.PointToPointSpawner.Editor
             // bind to spawn button
             var spawnButton = _container.Q<Button>("SpawnButton");
             spawnButton.clicked += InstantiateObjects;
-
         }
 
         private void OnSceneGUI(SceneView view)
@@ -155,15 +154,13 @@ namespace CodeLibrary24.PointToPointSpawner.Editor
                 _spawnItemMissingLabel.style.display = DisplayStyle.None;
             }
 
-
             Handles.DrawWireDisc(_selectedTransform.position, GetDirNormal(), _spawnData.radius);
-            // TODO: Do for Arc,Cube and Custom shape 
+            // TODO: Do for Arc,Cube and Custom shape
             DrawPreviewObjects();
         }
 
         private void ShowSelectedTransformNames()
         {
-
             if (_selectedTransforms.Count == 0)
             {
                 AddSelectedTransformLabel("No transforms selected");
@@ -203,9 +200,11 @@ namespace CodeLibrary24.PointToPointSpawner.Editor
                 case DirectionNormal.Up:
                     direction = Vector3.up;
                     break;
+
                 case DirectionNormal.Right:
                     direction = Vector3.right;
                     break;
+
                 case DirectionNormal.Forward:
                     direction = Vector3.forward;
                     break;
@@ -253,7 +252,6 @@ namespace CodeLibrary24.PointToPointSpawner.Editor
 
         private void InstantiateObjects()
         {
-
             // draw a circle and get points on the boundary
             Vector3[] points = GetPointsOnCircumference(_selectedTransform.position, _spawnData.radius, _spawnData.spawnCount);
 
@@ -264,9 +262,7 @@ namespace CodeLibrary24.PointToPointSpawner.Editor
                 newPoint.transform.parent = _selectedTransform;
                 newPoint.transform.LookAt(_selectedTransform.position);
             }
-
         }
-
 
         public Vector3[] GetPointsOnCircumference(Vector3 center, float radius, int points)
         {
@@ -293,10 +289,12 @@ namespace CodeLibrary24.PointToPointSpawner.Editor
                     x += radius * Mathf.Cos(angle);
                     z += radius * Mathf.Sin(angle);
                     break;
+
                 case DirectionNormal.Right:
                     y += radius * Mathf.Cos(angle);
                     z += radius * Mathf.Sin(angle);
                     break;
+
                 case DirectionNormal.Forward:
                     x += radius * Mathf.Cos(angle);
                     y += radius * Mathf.Sin(angle);
@@ -306,5 +304,4 @@ namespace CodeLibrary24.PointToPointSpawner.Editor
             return new Vector3(x, y, z);
         }
     }
-
 }
