@@ -116,7 +116,7 @@ namespace CodeLibrary24.PointToPointSpawner.Editor
 
             // bind to spawn button
             var spawnButton = _container.Q<Button>("SpawnButton");
-            spawnButton.clicked += DrawCubes;
+            spawnButton.clicked += InstantiateObjects;
 
         }
 
@@ -155,6 +155,7 @@ namespace CodeLibrary24.PointToPointSpawner.Editor
 
 
             Handles.DrawWireDisc(_selectedTransform.position, GetDiscNormal(), _spawnData.radius);
+            DrawPreviewObjects();
         }
 
         private void ShowSelectedTransformNames()
@@ -209,8 +210,45 @@ namespace CodeLibrary24.PointToPointSpawner.Editor
             return direction;
         }
 
+        private void DrawPreviewObjects()
+        {
+            Renderer renderer = _spawnData.itemToSpawn.GetComponent<Renderer>();
+            if (renderer == null)
+            {
+                return;
+            }
 
-        private void DrawCubes()
+            Material material = renderer.sharedMaterial;
+            if (material == null)
+            {
+                return;
+            }
+
+            Mesh mesh = _spawnData.itemToSpawn.GetComponent<MeshFilter>().sharedMesh;
+            if (mesh == null)
+            {
+                return;
+            }
+
+            material.SetPass(0);
+
+            Transform itemToSpawn = _spawnData.itemToSpawn.transform;
+
+            Vector3[] points = GetPointsOnCircumference(_selectedTransform.position, _spawnData.radius, _spawnData.spawnCount);
+            foreach (Vector3 point in points)
+            {
+                Graphics.DrawMeshNow(mesh, Matrix4x4.TRS(point, RotateTowards(point, itemToSpawn.transform.position), itemToSpawn.transform.localScale));
+            }
+        }
+
+        private Quaternion RotateTowards(Vector3 sourcePosition, Vector3 targetPosition)
+        {
+            Vector3 direction = targetPosition - sourcePosition;
+            Quaternion lookRotation = Quaternion.LookRotation(direction);
+            return lookRotation;
+        }
+
+        private void InstantiateObjects()
         {
 
             // draw a circle and get points on the boundary
