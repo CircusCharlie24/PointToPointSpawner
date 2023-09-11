@@ -25,6 +25,8 @@ namespace CodeLibrary24.PointToPointSpawner.Editor
 
         private List<Label> _selectedTransformLabels;
 
+        private bool _isPreviewAllowed = true;
+
         [MenuItem("CodeLibrary24/PointToPointSpawner/SpawnerWindow")]
         public static void ShowWindow()
         {
@@ -99,10 +101,10 @@ namespace CodeLibrary24.PointToPointSpawner.Editor
             spawnCountField.value = _spawnData.spawnCount;
             spawnCountField.bindingPath = nameof(_spawnData.spawnCount);
 
-            // bind to discDirection
-            var discDirectionField = _container.Q<EnumField>("DirectionNormal");
-            discDirectionField.Init(_spawnData.dirNormal);
-            discDirectionField.bindingPath = nameof(_spawnData.dirNormal);
+            // bind to normal direction field
+            var dirNormal = _container.Q<EnumField>("DirectionNormal");
+            dirNormal.Init(_spawnData.dirNormal);
+            dirNormal.bindingPath = nameof(_spawnData.dirNormal);
 
             _dataContainer = _container.Q<VisualElement>("DataContainer");
             _spawningContainer = _container.Q<VisualElement>("SpawningContainer");
@@ -124,7 +126,7 @@ namespace CodeLibrary24.PointToPointSpawner.Editor
         {
             ClearSelectedTransformLabels();
 
-            _selectedTransform = Selection.activeTransform; // TODO: There can be multiple selections here
+            _selectedTransform = Selection.activeTransform; // TODO: There can be multiple selections here too in case of custom shape
             _selectedTransforms = new List<Transform>(Selection.transforms);
 
             if (_selectedTransform == null)
@@ -154,7 +156,8 @@ namespace CodeLibrary24.PointToPointSpawner.Editor
             }
 
 
-            Handles.DrawWireDisc(_selectedTransform.position, GetDiscNormal(), _spawnData.radius);
+            Handles.DrawWireDisc(_selectedTransform.position, GetDirNormal(), _spawnData.radius);
+            // TODO: Do for Arc,Cube and Custom shape 
             DrawPreviewObjects();
         }
 
@@ -192,7 +195,7 @@ namespace CodeLibrary24.PointToPointSpawner.Editor
             _selectedTransformLabels.Clear();
         }
 
-        private Vector3 GetDiscNormal()
+        private Vector3 GetDirNormal()
         {
             Vector3 direction = Vector3.zero;
             switch (_spawnData.dirNormal)
@@ -261,7 +264,9 @@ namespace CodeLibrary24.PointToPointSpawner.Editor
                 newPoint.transform.parent = _selectedTransform;
                 newPoint.transform.LookAt(_selectedTransform.position);
             }
+
         }
+
 
         public Vector3[] GetPointsOnCircumference(Vector3 center, float radius, int points)
         {
@@ -276,13 +281,13 @@ namespace CodeLibrary24.PointToPointSpawner.Editor
             return result;
         }
 
-        public static Vector3 CalculatePosition(DirectionNormal discDirection, Vector3 center, float radius, float angle)
+        public static Vector3 CalculatePosition(DirectionNormal dirNormal, Vector3 center, float radius, float angle)
         {
             float x = center.x;
             float y = center.y;
             float z = center.z;
 
-            switch (discDirection)
+            switch (dirNormal)
             {
                 case DirectionNormal.Up:
                     x += radius * Mathf.Cos(angle);
