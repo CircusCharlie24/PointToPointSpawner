@@ -20,7 +20,10 @@ namespace CodeLibrary24.PointToPointSpawner.Editor
         private VisualElement _activeSelectionMissingLabel;
         private VisualElement _spawnItemMissingLabel;
 
+        private ScrollView _scrollView;
         private List<Transform> _selectedTransforms;
+
+        private List<Label> _selectedTransformLabels;
 
         [MenuItem("CodeLibrary24/PointToPointSpawner/SpawnerWindow")]
         public static void ShowWindow()
@@ -53,10 +56,18 @@ namespace CodeLibrary24.PointToPointSpawner.Editor
             VisualElement root = rootVisualElement;
             _container = m_VisualTreeAsset.CloneTree();
             root.Add(_container);
+
+            Initialize();
+
             LoadSpawnData();
             BindSpawnData();
 
             OpenSceneView();
+        }
+
+        private void Initialize()
+        {
+            _selectedTransformLabels = new List<Label>();
         }
 
         private void OpenSceneView()
@@ -101,6 +112,8 @@ namespace CodeLibrary24.PointToPointSpawner.Editor
 
             rootVisualElement.Bind(new SerializedObject(_spawnData));
 
+            _scrollView = _container.Q<ScrollView>("ScrollView");
+
             // bind to spawn button
             var spawnButton = _container.Q<Button>("SpawnButton");
             spawnButton.clicked += DrawCubes;
@@ -109,6 +122,8 @@ namespace CodeLibrary24.PointToPointSpawner.Editor
 
         private void OnSceneGUI(SceneView view)
         {
+            ClearSelectedTransformLabels();
+
             _selectedTransform = Selection.activeTransform; // TODO: There can be multiple selections here
             _selectedTransforms = new List<Transform>(Selection.transforms);
 
@@ -124,6 +139,8 @@ namespace CodeLibrary24.PointToPointSpawner.Editor
                 _activeSelectionMissingLabel.style.display = DisplayStyle.None;
             }
 
+            ShowSelectedTransformNames();
+
             if (_spawnData.itemToSpawn == null)
             {
                 _spawningContainer.style.display = DisplayStyle.None;
@@ -136,15 +153,42 @@ namespace CodeLibrary24.PointToPointSpawner.Editor
                 _spawnItemMissingLabel.style.display = DisplayStyle.None;
             }
 
+
             Handles.DrawWireDisc(_selectedTransform.position, GetDiscNormal(), _spawnData.radius);
         }
 
         private void ShowSelectedTransformNames()
         {
-            foreach (Transform transform in _selectedTransforms)
-            {
 
+            if (_selectedTransforms.Count == 0)
+            {
+                AddSelectedTransformLabel("No transforms selected");
             }
+            else
+            {
+                for (int i = 0; i < _selectedTransforms.Count; i++)
+                {
+                    AddSelectedTransformLabel(_selectedTransforms[i].name);
+                }
+            }
+        }
+
+        private void AddSelectedTransformLabel(string text)
+        {
+            Label newLabel = new Label(text);
+            newLabel.style.color = Color.green;
+            newLabel.style.unityTextAlign = TextAnchor.MiddleCenter;
+            _scrollView.Add(newLabel);
+            _selectedTransformLabels.Add(newLabel);
+        }
+
+        private void ClearSelectedTransformLabels()
+        {
+            foreach (Label label in _selectedTransformLabels)
+            {
+                _scrollView.Remove(label);
+            }
+            _selectedTransformLabels.Clear();
         }
 
         private Vector3 GetDiscNormal()
