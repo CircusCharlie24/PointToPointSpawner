@@ -7,8 +7,7 @@ namespace CodeLibrary24.PointToPointSpawner.Editor
     public class SpawnData : ScriptableObject
     {
         public GameObject itemToSpawn;
-        public  float radius = 1f;
         public int spawnCount = 10;
-        public DirectionNormal dirNormal;
+        [SerializeField] public CircleData circleData;
     }
 }

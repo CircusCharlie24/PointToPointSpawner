@@ -26,7 +26,11 @@ namespace CodeLibrary24.PointToPointSpawner.Editor
 
         private List<Label> _selectedTransformLabels;
 
-        private bool _isPreviewAllowed = true;
+        // TODO: Add an enum field to select the shape
+
+        private CircleMaker _circleMaker;
+        private ShapeMaker<ShapeData> _selectedShapeMaker;
+
 
         [MenuItem("CodeLibrary24/PointToPointSpawner/SpawnerWindow")]
         public static void ShowWindow()
@@ -60,17 +64,22 @@ namespace CodeLibrary24.PointToPointSpawner.Editor
             _container = m_VisualTreeAsset.CloneTree();
             root.Add(_container);
 
-            Initialize();
-
             LoadSpawnData();
+            Initialize();
             BindSpawnData();
-
             OpenSceneView();
         }
 
         private void Initialize()
         {
             _selectedTransformLabels = new List<Label>();
+            InitializeShapes();
+        }
+
+        private void InitializeShapes()
+        {
+            _circleMaker = new CircleMaker(_spawnData.circleData, _spawnData);
+            //_selectedShapeMaker = _circleMaker; // TODO: Do this when the shapes enum value changes in editor
         }
 
         private void OpenSceneView()
@@ -78,7 +87,7 @@ namespace CodeLibrary24.PointToPointSpawner.Editor
             SceneView sceneView = SceneView.lastActiveSceneView;
             if (sceneView == null)
             {
-                sceneView = EditorWindow.GetWindow<SceneView>();
+                sceneView = GetWindow<SceneView>();
             }
             sceneView.Focus();
         }
@@ -92,19 +101,12 @@ namespace CodeLibrary24.PointToPointSpawner.Editor
             prefabField.bindingPath = nameof(_spawnData.itemToSpawn);
 
             // bind to radius
-            var radiusField = _container.Q<FloatField>("Radius");
-            radiusField.value = _spawnData.radius;
-            radiusField.bindingPath = nameof(_spawnData.radius);
 
             // bind to spawnCount
             var spawnCountField = _container.Q<IntegerField>("SpawnCount");
             spawnCountField.value = _spawnData.spawnCount;
             spawnCountField.bindingPath = nameof(_spawnData.spawnCount);
 
-            // bind to normal direction field
-            var dirNormal = _container.Q<EnumField>("DirectionNormal");
-            dirNormal.Init(_spawnData.dirNormal);
-            dirNormal.bindingPath = nameof(_spawnData.dirNormal);
 
             _dataContainer = _container.Q<VisualElement>("DataContainer");
             _spawningContainer = _container.Q<VisualElement>("SpawningContainer");
@@ -154,9 +156,10 @@ namespace CodeLibrary24.PointToPointSpawner.Editor
                 _spawnItemMissingLabel.style.display = DisplayStyle.None;
             }
 
-            Handles.DrawWireDisc(_selectedTransform.position, GetDirNormal(), _spawnData.radius);
-            // TODO: Do for Arc,Cube and Custom shape
-            DrawPreviewObjects();
+            //TODO: How do I solve this?       //_selectedShapeMaker.OnGUI();
+            _circleMaker.OnGUI();
+
+
         }
 
         private void ShowSelectedTransformNames()
@@ -192,68 +195,11 @@ namespace CodeLibrary24.PointToPointSpawner.Editor
             _selectedTransformLabels.Clear();
         }
 
-        private Vector3 GetDirNormal()
-        {
-            Vector3 direction = Vector3.zero;
-            switch (_spawnData.dirNormal)
-            {
-                case DirectionNormal.Up:
-                    direction = Vector3.up;
-                    break;
-
-                case DirectionNormal.Right:
-                    direction = Vector3.right;
-                    break;
-
-                case DirectionNormal.Forward:
-                    direction = Vector3.forward;
-                    break;
-            }
-            return direction;
-        }
-
-        private void DrawPreviewObjects()
-        {
-            Renderer renderer = _spawnData.itemToSpawn.GetComponent<Renderer>();
-            if (renderer == null)
-            {
-                return;
-            }
-
-            Material material = renderer.sharedMaterial;
-            if (material == null)
-            {
-                return;
-            }
-
-            Mesh mesh = _spawnData.itemToSpawn.GetComponent<MeshFilter>().sharedMesh;
-            if (mesh == null)
-            {
-                return;
-            }
-
-            material.SetPass(0);
-
-            Transform itemToSpawn = _spawnData.itemToSpawn.transform;
-
-            Vector3[] points = GetPointsOnCircumference(_selectedTransform.position, _spawnData.radius, _spawnData.spawnCount);
-            foreach (Vector3 point in points)
-            {
-                Graphics.DrawMeshNow(mesh, Matrix4x4.TRS(point, RotateTowards(point, itemToSpawn.transform.position), itemToSpawn.transform.localScale));
-            }
-        }
-
-        private Quaternion RotateTowards(Vector3 sourcePosition, Vector3 targetPosition)
-        {
-            Vector3 direction = targetPosition - sourcePosition;
-            Quaternion lookRotation = Quaternion.LookRotation(direction);
-            return lookRotation;
-        }
 
         private void InstantiateObjects()
         {
             // draw a circle and get points on the boundary
-            Vector3[] points = GetPointsOnCircumference(_selectedTransform.position, _spawnData.radius, _spawnData.spawnCount);
+            Vector3[] points = _selectedShapeMaker.GetPointsOnBoundary();
 
             foreach (Vector3 point in points)
             {
@@ -262,46 +208,6 @@ namespace CodeLibrary24.PointToPointSpawner.Editor
                 newPoint.transform.parent = _selectedTransform;
                 newPoint.transform.LookAt(_selectedTransform.position);
             }
-        }
-
-        public Vector3[] GetPointsOnCircumference(Vector3 center, float radius, int points)
-        {
-            Vector3[] result = new Vector3[points];
-            float slice = 2 * Mathf.PI / points;
-            for (int i = 0; i < points; i++)
-            {
-                float angle = slice * i;
-                result[i] = CalculatePosition(_spawnData.dirNormal, center, radius, angle);
-            }
-
-            return result;
-        }
-
-        public static Vector3 CalculatePosition(DirectionNormal dirNormal, Vector3 center, float radius, float angle)
-        {
-            float x = center.x;
-            float y = center.y;
-            float z = center.z;
-
-            switch (dirNormal)
-            {
-                case DirectionNormal.Up:
-                    x += radius * Mathf.Cos(angle);
-                    z += radius * Mathf.Sin(angle);
-                    break;
-
-                case DirectionNormal.Right:
-                    y += radius * Mathf.Cos(angle);
-                    z += radius * Mathf.Sin(angle);
-                    break;
-
-                case DirectionNormal.Forward:
-                    x += radius * Mathf.Cos(angle);
-                    y += radius * Mathf.Sin(angle);
-                    break;
-            }
-
-            return new Vector3(x, y, z);
         }
     }
 }

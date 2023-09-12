@@ -14,5 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemToSpawn: {fileID: 982752972779720126, guid: 6d8b82553ae86a94baac487bd6608f95, type: 3}
   radius: 1.32
-  spawnCount: 16
+  spawnCount: 6
   dirNormal: 0
