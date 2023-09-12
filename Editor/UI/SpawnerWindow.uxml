@@ -12,8 +12,6 @@
             <ui:Label tabindex="-1" text="Item to spawn cannot be null" display-tooltip-when-elided="true" name="SpawnItemMissingLabel" style="-unity-font-style: italic; color: rgb(255, 0, 0); font-size: 11px; -unity-text-align: upper-right;" />
             <ui:VisualElement name="SpawningContainer" style="flex-grow: 1; background-color: rgba(0, 0, 0, 0);">
                 <ui:IntegerField label="Spawn Count" value="0" name="SpawnCount" />
-                <ui:FloatField label="Radius" value="0" name="Radius" />
-                <ui:EnumField label="Enum" type="CodeLibrary24.PointToPointSpawner.Editor.DirectionNormal, com.codelibrary24.pointtopointspawner.editor" name="DirectionNormal" />
                 <ui:Button text="Spawn" display-tooltip-when-elided="true" name="SpawnButton" style="background-color: rgb(61, 154, 47); margin-top: 10px; padding-left: 20px; padding-right: 20px; width: 200px; align-self: center;" />
             </ui:VisualElement>
         </ui:VisualElement>
